@@ -46,16 +46,9 @@ function App() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(
-          `/api/ideas?page[number]=${page}&page[size]=${size}&append[]=small_image&sort=${sort}`, 
-          {
-            method: 'GET',
-            headers: {
-              'Accept': 'application/json',
-              'Content-Type': 'application/json'
-            }
-          }
-        );
+       const response = await fetch(
+  `${import.meta.env.VITE_API_BASE_URL}/api/ideas?page[number]=${page}&...`
+);
         const result = await response.json();
         setData(result.data || []);
         setMeta(result.meta || null);
