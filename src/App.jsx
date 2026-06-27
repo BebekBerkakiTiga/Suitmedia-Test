@@ -3,50 +3,44 @@ import './App.css';
 import logo from './assets/logo.png'; 
 
 function App() {
-  // 1. STATE PRESERVATION (Read from URL on load)
   const searchParams = new URLSearchParams(window.location.search);
   const [page, setPage] = useState(parseInt(searchParams.get('page')) || 1);
   const [size, setSize] = useState(parseInt(searchParams.get('size')) || 10);
   const [sort, setSort] = useState(searchParams.get('sort') || '-published_at');
   const [data, setData] = useState([]);
-  const [meta, setMeta] = useState(null); // Added to track total pages and items
+  const [meta, setMeta] = useState(null);
 
-  // Header State
   const [showHeader, setShowHeader] = useState(true);
   const [isTransparent, setIsTransparent] = useState(false);
 
-  // 2. UPDATE URL WHEN STATE CHANGES
   useEffect(() => {
     const params = new URLSearchParams({ page, size, sort });
     window.history.replaceState({}, '', `${window.location.pathname}?${params}`);
   }, [page, size, sort]);
 
-  // 3. DYNAMIC HEADER SCROLL LOGIC
   useEffect(() => {
-    let lastScrollY = window.scrollY; // Local variable instead of React state
-
+    let lastScrollY = window.scrollY;
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
       
       if (currentScrollY > lastScrollY && currentScrollY > 50) {
-        setShowHeader(false); // Scrolling down
+        setShowHeader(false);
       } else {
-        setShowHeader(true);  // Scrolling up
-        setIsTransparent(currentScrollY > 50); // Transparent if not at the very top
+        setShowHeader(true);
+        setIsTransparent(currentScrollY > 50);
       }
       
-      lastScrollY = currentScrollY; // Update local variable
+      lastScrollY = currentScrollY;
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []); 
 
-  // 4. API FETCHING
+  //API Fetching
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Grab the base URL from the environment, or default to empty string for local proxy
         const baseUrl = import.meta.env.VITE_API_BASE_URL || ''; 
         
         const response = await fetch(
@@ -127,7 +121,6 @@ console.log("My API Data:", data);
                     alt={item.title} 
                     loading="lazy" 
                     onError={(e) => { 
-                      // If the asset server's link is dead/404, fallback to grey box
                       e.target.style.display = 'none'; 
                       e.target.parentElement.style.backgroundColor = '#eee';
                     }}
@@ -146,7 +139,6 @@ console.log("My API Data:", data);
           ))}
         </div>
 
-        {/* UPDATED NUMBERED PAGINATION */}
         {meta && (
           <div className="pagination">
             <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}>
